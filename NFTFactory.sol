@@ -1,64 +1,50 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.0;
 
 import "./RestaurantNFT.sol";
 
+// Factory contract to deploy and manage individual NFT collections (RestaurantNFTs)
 contract NFTFactory {
-    struct CollectionInfo {
-        address contractAddress;
-        address owner;
-        string name;
-        uint256 maxSupply;
+    address public owner;                        // Owner of the factory (platform owner)
+    address[] public allCollections;             // All deployed collection addresses
+
+    // Mapping from user address (restaurant) to their deployed collections
+    mapping(address => address[]) public ownerToCollections;
+
+    // Emitted when a new collection is deployed
+    event CollectionDeployed(address indexed owner, address collection);
+
+    constructor() {
+        owner = msg.sender;                      // Initialize factory owner
     }
 
-    CollectionInfo[] public collections;
-    mapping(address => address[]) public userCollections;
-
-    event CollectionCreated(
-        address indexed owner,
-        address indexed contractAddress,
-        string name,
-        uint256 maxSupply
-    );
-
-    function createRestaurantNFT(
+    // Deploys a new NFT collection with a custom name, symbol, and supply limit
+    function deployCollection(
         string memory name,
-        uint256 maxSupply,
-        address owner
-    ) external {
-        RestaurantNFT newCollection = new RestaurantNFT(
-            name,
-            name,
-            maxSupply,
-            owner,
-            address(this)
-        );
+        string memory symbol,
+        uint256 maxSupply
+    ) external returns (address) {
+        // Create new RestaurantNFT and set caller as the owner
+        RestaurantNFT collection = new RestaurantNFT(name, symbol, maxSupply, msg.sender);
+        address collectionAddress = address(collection);
 
-        collections.push(CollectionInfo({
-            contractAddress: address(newCollection),
-            owner: owner,
-            name: name,
-            maxSupply: maxSupply
-        }));
+        // Track the deployed collection
+        allCollections.push(collectionAddress);
+        ownerToCollections[msg.sender].push(collectionAddress);
 
-        userCollections[owner].push(address(newCollection));
-
-        emit CollectionCreated(owner, address(newCollection), name, maxSupply);
+        emit CollectionDeployed(msg.sender, collectionAddress);
+        return collectionAddress;
     }
 
-    function getUserCollections(address user) external view returns (address[] memory) {
-        return userCollections[user];
+    // Get all NFT collections deployed by a specific owner (restaurant)
+    function getCollectionsByOwner(address ownerAddr) external view returns (address[] memory) {
+        return ownerToCollections[ownerAddr];
     }
 
-    function getAllCollections() external view returns (CollectionInfo[] memory) {
-        return collections;
-    }
-
-    function isFactoryDeployed(address contractAddr) public view returns (bool) {
-        for (uint i = 0; i < collections.length; i++) {
-            if (collections[i].contractAddress == contractAddr) {
-                return true;
-            }
+    // Check if an address is one of the deployed NFT collections
+    function isFactoryChild(address collectionAddr) external view returns (bool) {
+        for (uint i = 0; i < allCollections.length; i++) {
+            if (allCollections[i] == collectionAddr) return true;
         }
         return false;
     }
