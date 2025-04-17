@@ -1,0 +1,23 @@
+{
+  "name": "cs595_final_contracts",
+  "version": "1.0.0",
+  "description": "draft of the contracts that will be considered",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jiaQiu9/cs595_final_contracts.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jiaQiu9/cs595_final_contracts/issues"
+  },
+  "homepage": "https://github.com/jiaQiu9/cs595_final_contracts#readme",
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.3.0"
+  }
+}

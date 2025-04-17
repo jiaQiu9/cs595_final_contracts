@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./RestaurantNFT.sol";
+import "./CouponNFT.sol";
 
 // Factory contract to deploy and manage individual NFT collections (RestaurantNFTs)
 contract NFTFactory {
@@ -22,10 +22,11 @@ contract NFTFactory {
     function deployCollection(
         string memory name,
         string memory symbol,
-        uint256 maxSupply
+        uint256 maxSupply,
+        uint256 expiration_date
     ) external returns (address) {
         // Create new RestaurantNFT and set caller as the owner
-        RestaurantNFT collection = new RestaurantNFT(name, symbol, maxSupply, msg.sender);
+        CouponNFT collection = new CouponNFT(name, symbol, maxSupply, expiration_date, msg.sender);
         address collectionAddress = address(collection);
 
         // Track the deployed collection
